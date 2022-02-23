@@ -1,5 +1,12 @@
 import Database from 'better-sqlite3';
 import { users, subreddits, posts, comments, votes } from './initialData';
+import {
+  createUser,
+  createSubreddit,
+  createPost,
+  createComment,
+  createVote
+} from './queries';
 
 const db = new Database('./data.db', {
   verbose: console.log
@@ -52,23 +59,6 @@ CREATE TABLE users (
     FOREIGN KEY (postId) REFERENCES posts(id),
     FOREIGN KEY (userId) REFERENCES users(id)
   );
-`);
-
-const createUser = db.prepare(`
-  INSERT INTO users (username, password) VALUES (?, ?)
-`);
-const createSubreddit = db.prepare(`
-  INSERT INTO subreddits (name, description) VALUES (?, ?)
-`);
-const createPost = db.prepare(`
-  INSERT INTO posts (title, content, userId, subredditId) VALUES (?, ?, ?, ?)
-`);
-const createComment = db.prepare(`
-  INSERT INTO comments (content, userId, postId) VALUES (?, ?, ?)
-`);
-
-const createVote = db.prepare(`
-  INSERT INTO votes (userId, postId) VALUES (?, ?)
 `);
 
 for (const user of users) {
