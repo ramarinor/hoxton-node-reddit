@@ -112,15 +112,18 @@ export const comments = [
   { content: 'for breaking your hear', userId: 4, postId: 4 }
 ];
 
-export const votes = [
-  { userId: 1, postId: 1 },
+export const upvotes = [
   { userId: 2, postId: 1 },
   { userId: 3, postId: 1 },
   { userId: 4, postId: 1 },
-  { userId: 1, postId: 2 },
-  { userId: 2, postId: 2 },
   { userId: 4, postId: 2 },
   { userId: 3, postId: 3 },
-  { userId: 4, postId: 3 },
+  { userId: 4, postId: 3 }
+];
+
+export const downvotes = [
+  { userId: 1, postId: 1 },
+  { userId: 1, postId: 2 },
+  { userId: 2, postId: 2 },
   { userId: 1, postId: 4 }
 ];

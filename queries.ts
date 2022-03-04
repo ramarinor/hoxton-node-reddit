@@ -16,8 +16,11 @@ export const createComment = db.prepare(`
   INSERT INTO comments (content, userId, postId) VALUES (?, ?, ?)
 `);
 
-export const createVote = db.prepare(`
-  INSERT INTO votes (userId, postId) VALUES (?, ?)
+export const createUpvote = db.prepare(`
+  INSERT INTO upvotes (userId, postId) VALUES (?, ?)
+`);
+export const createDownvote = db.prepare(`
+  INSERT INTO downvotes (userId, postId) VALUES (?, ?)
 `);
 
 export const getUserByUsername = db.prepare(`

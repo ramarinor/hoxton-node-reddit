@@ -1,19 +1,20 @@
 import Database from 'better-sqlite3';
-import { users, subreddits, posts, comments, votes } from './initialData';
 import {
-  createUser,
-  createSubreddit,
-  createPost,
-  createComment,
-  createVote
-} from './queries';
+  users,
+  subreddits,
+  posts,
+  comments,
+  upvotes,
+  downvotes
+} from './initialData';
 
 const db = new Database('./data.db', {
   verbose: console.log
 });
 
 db.exec(`
-DROP TABLE IF EXISTS votes;
+DROP TABLE IF EXISTS downvotes;
+DROP TABLE IF EXISTS upvotes;
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS users;
@@ -52,7 +53,15 @@ CREATE TABLE users (
     FOREIGN KEY (userId) REFERENCES users(id)
   );
 
-  CREATE TABLE votes (
+  CREATE TABLE upvotes (
+    "id" INTEGER PRIMARY KEY,
+    "userId" INTEGER NOT NULL,
+    "postId" INTEGER NOY NULL,
+    FOREIGN KEY (postId) REFERENCES posts(id),
+    FOREIGN KEY (userId) REFERENCES users(id)
+  );
+
+  CREATE TABLE downvotes (
     "id" INTEGER PRIMARY KEY,
     "userId" INTEGER NOT NULL,
     "postId" INTEGER NOY NULL,
@@ -60,6 +69,14 @@ CREATE TABLE users (
     FOREIGN KEY (userId) REFERENCES users(id)
   );
 `);
+import {
+  createUser,
+  createSubreddit,
+  createPost,
+  createComment,
+  createUpvote,
+  createDownvote
+} from './queries';
 
 for (const user of users) {
   createUser.run(user.username, user.password);
@@ -77,6 +94,10 @@ for (const comment of comments) {
   createComment.run(comment.content, comment.userId, comment.postId);
 }
 
-for (const vote of votes) {
-  createVote.run(vote.userId, vote.postId);
+for (const upvote of upvotes) {
+  createUpvote.run(upvote.userId, upvote.postId);
+}
+
+for (const downvote of downvotes) {
+  createDownvote.run(downvote.userId, downvote.postId);
 }
