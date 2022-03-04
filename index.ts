@@ -10,12 +10,14 @@ const db = new Database('./data.db', {
   verbose: console.log
 });
 
-app.get('/users', (req, res) => {
+app.post('/sign-in', (req, res) => {
   const { username, password } = req.body;
   const user = getUserByUsername.get(username);
+
   if (user) {
     if (password == user.password) {
-      res.send({ message: 'Successfully signed in!', user: { username } });
+      const id = user.id;
+      res.send({ user: { id, username } });
     } else {
       res.status(401).send({ error: 'Password is incorrect!' });
     }
