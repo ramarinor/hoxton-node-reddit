@@ -8,7 +8,11 @@ import {
   getUserById,
   getSubredditById,
   getUpvotesByPostId,
-  getDownvotesByPostId
+  getDownvotesByPostId,
+  getPostById,
+  createPost,
+  getPostsBySubredditId,
+  createSubreddit
 } from './queries';
 
 const app = express();
@@ -66,6 +70,91 @@ app.get('/posts', (req, res) => {
   }
   posts.sort((post1, post2) => post2.rating - post1.rating);
   res.send(posts);
+});
+// - View an individual post
+app.get('/posts/:id', (req, res) => {
+  const id = req.params.id;
+  const post = getPostById.get(id);
+
+  if (post) {
+    const user = getUserById.get(post.userId);
+    post.user = user;
+    const subreddit = getSubredditById.get(post.subredditId);
+    post.subreddit = subreddit;
+    post.rating =
+      getUpvotesByPostId.all(post.id).length -
+      getDownvotesByPostId.all([post.id]).length;
+    res.send(post);
+  } else {
+    res.status(404).send({ error: "This post doesn't exist!" });
+  }
+});
+
+// - Create a post
+app.post('/posts', (req, res) => {
+  const { title, content, userId, subredditId } = req.body;
+  const errors = [];
+
+  if (typeof title !== 'string')
+    errors.push('title is missing or not a string!');
+  if (typeof content !== 'string')
+    errors.push('body is missing or not a string!');
+  if (typeof userId !== 'number')
+    errors.push('userId is missing or not a number!');
+  if (typeof subredditId !== 'number')
+    errors.push('subredditId is missing or not a number!');
+
+  if (errors.length === 0) {
+    const result = createPost.run(title, content, userId, subredditId);
+    const post = getPostById.get(result.lastInsertRowid);
+    post.user = getUserById.get(post.userId);
+    post.subreddit = getPostById.get(post.subredditId);
+    post.rating = 0;
+    res.send(post);
+  } else {
+    res.status(400).send(errors);
+  }
+});
+
+// - View and create subreddits
+app.get('/subreddits/:id', (req, res) => {
+  const id = req.params.id;
+  const subreddit = getSubredditById.get(id);
+  if (subreddit) {
+    const posts = getPostsBySubredditId.all(subreddit.id);
+    for (const post of posts) {
+      const user = getUserById.get(post.userId);
+      post.user = user;
+      const subreddit = getSubredditById.get(post.subredditId);
+      post.subreddit = subreddit;
+      post.rating =
+        getUpvotesByPostId.all(post.id).length -
+        getDownvotesByPostId.all([post.id]).length;
+    }
+    subreddit.posts = posts;
+    subreddit.posts.sort((post1, post2) => post2.rating - post1.rating);
+    res.send(subreddit);
+  } else {
+    res.send({ error: 'Subreddit doesnt exists' });
+  }
+});
+
+app.post('/subreddits', (req, res) => {
+  const { name, description } = req.body;
+  const errors = [];
+
+  if (typeof name !== 'string') errors.push('name is missing or not a string!');
+  if (typeof description !== 'string')
+    errors.push('description is missing or not a string!');
+
+  if (errors.length === 0) {
+    const result = createSubreddit.run(name, description);
+    const subreddit = getSubredditById.get(result.lastInsertRowid);
+    subreddit.posts = [];
+    res.send(subreddit);
+  } else {
+    res.status(406).send(errors);
+  }
 });
 
 app.listen(4000, () =>

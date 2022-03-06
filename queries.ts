@@ -31,6 +31,10 @@ export const getPosts = db.prepare(`
 SELECT * from posts;
 `);
 
+export const getPostById = db.prepare(`
+SELECT * from posts WHERE id = ?;
+`);
+
 export const getUserById = db.prepare(`
 SELECT * from users WHERE id = ?;
 `);
@@ -45,4 +49,8 @@ SELECT * from upvotes WHERE postId = ?;
 
 export const getDownvotesByPostId = db.prepare(`
 SELECT * from downvotes WHERE postId = ?;
+`);
+
+export const getPostsBySubredditId = db.prepare(`
+SELECT * from posts WHERE subredditId = ?
 `);
