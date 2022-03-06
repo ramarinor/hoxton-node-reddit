@@ -26,3 +26,23 @@ export const createDownvote = db.prepare(`
 export const getUserByUsername = db.prepare(`
   SELECT * FROM users WHERE username=?
 `);
+
+export const getPosts = db.prepare(`
+SELECT * from posts;
+`);
+
+export const getUserById = db.prepare(`
+SELECT * from users WHERE id = ?;
+`);
+
+export const getSubredditById = db.prepare(`
+SELECT * from subreddits WHERE id = ?;
+`);
+
+export const getUpvotesByPostId = db.prepare(`
+SELECT * from upvotes WHERE postId = ?;
+`);
+
+export const getDownvotesByPostId = db.prepare(`
+SELECT * from downvotes WHERE postId = ?;
+`);
