@@ -12,7 +12,14 @@ import {
   getPostById,
   createPost,
   getPostsBySubredditId,
-  createSubreddit
+  createSubreddit,
+  createUpvote,
+  getUpvoteById,
+  deleteDownvoteByUserIdAndPostId,
+  deleteUpvoteByUserIdAndPostId,
+  createDownvote,
+  getDownvoteById,
+  createComment
 } from './queries';
 
 const app = express();
@@ -153,7 +160,76 @@ app.post('/subreddits', (req, res) => {
     subreddit.posts = [];
     res.send(subreddit);
   } else {
-    res.status(406).send(errors);
+    res.status(401).send(errors);
+  }
+});
+
+// - Upvote or downvote a post
+app.post('/upvotes', (req, res) => {
+  const { userId, postId } = req.body.userId;
+  const errors = [];
+  if (typeof userId !== 'number')
+    errors.push('userid is missing or not a number!');
+  if (typeof postId !== 'number')
+    errors.push('postId is missing or not a number!');
+  const user = getUserById.get(userId);
+  if (!user) errors.push('this user does not exist!');
+  const post = getPostById.get(postId);
+  if (!post) errors.push('this post does not exist');
+  if (errors.length === 0) {
+    deleteDownvoteByUserIdAndPostId.run(userId, postId);
+    const result = createUpvote.run(userId, postId);
+    const upvote = getUpvoteById.get(result.lastInsertRowid);
+    res.send(upvote);
+  } else {
+    res.status(401).send(errors);
+  }
+});
+
+app.post('/downvotes', (req, res) => {
+  const { userId, postId } = req.body.userId;
+  const errors = [];
+  if (typeof userId !== 'number')
+    errors.push('userid is missing or not a number!');
+  if (typeof postId !== 'number')
+    errors.push('postId is missing or not a number!');
+  const user = getUserById.get(userId);
+  if (!user) errors.push('this user does not exist!');
+  const post = getPostById.get(postId);
+  if (!post) errors.push('this post does not exist');
+  if (errors.length === 0) {
+    deleteUpvoteByUserIdAndPostId.run(userId, postId);
+    const result = createDownvote.run(userId, postId);
+    const downvote = getDownvoteById.get(result.lastInsertRowid);
+    res.send(downvote);
+  } else {
+    res.status(401).send(errors);
+  }
+});
+
+// - Leave a comment for a post
+
+app.post('comments', (req, res) => {
+  const { content, userId, postId } = req.body;
+  const errors = [];
+
+  if (typeof content !== 'string')
+    errors.push('content is missing or not a string!');
+  if (typeof userId !== 'number')
+    errors.push('userid is missing or not a number!');
+  if (typeof postId !== 'number')
+    errors.push('postId is missing or not a number!');
+  const user = getUserById.get(userId);
+  if (!user) errors.push('this user does not exist!');
+  const post = getPostById.get(postId);
+  if (!post) errors.push('this post does not exist');
+
+  if (errors.length === 0) {
+    const result = createComment.run(content, userId, postId);
+    const comment = getDownvoteById.get(result.lastInsertRowid);
+    res.send(comment);
+  } else {
+    res.status(401).send(errors);
   }
 });
 

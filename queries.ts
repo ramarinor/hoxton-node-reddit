@@ -54,3 +54,19 @@ SELECT * from downvotes WHERE postId = ?;
 export const getPostsBySubredditId = db.prepare(`
 SELECT * from posts WHERE subredditId = ?
 `);
+
+export const getUpvoteById = db.prepare(`
+SELECT * from upvotes WHERE id = ?;
+`);
+
+export const deleteDownvoteByUserIdAndPostId = db.prepare(`
+DELETE FROM downvotes WHERE userId = ? AND postId = ?
+`);
+
+export const getDownvoteById = db.prepare(`
+SELECT * from downvotes WHERE id = ?;
+`);
+
+export const deleteUpvoteByUserIdAndPostId = db.prepare(`
+DELETE FROM upvotes WHERE userId = ? AND postId = ?
+`);
